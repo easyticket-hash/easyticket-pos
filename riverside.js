@@ -1,5 +1,5 @@
 (function(){
-const extraKey="easyticket-riverside-extra-v1";
+const extraKey=window.EasyTicketTenant.activeId()==="riverside"?"easyticket-riverside-extra-v1":"easyticket-riverside-extra-v1:"+window.EasyTicketTenant.activeId();
 let extra;try{extra=JSON.parse(localStorage.getItem(extraKey))||{}}catch(e){extra={}}
 extra.schools=Array.isArray(extra.schools)?extra.schools:[];
 extra.members=Array.isArray(extra.members)?extra.members:[];
@@ -37,7 +37,7 @@ if(isMember&&!extra.members.some(x=>x.code===memberCode&&x.active))return alert(
 const q=Number(el("qty").value);if(!Number.isInteger(q)||q<p[4]||q>1000)return alert("Jumlah tiket tidak memenuhi ketentuan.");
 const unitPrice=p[el("day").value==="weekday"?2:3],total=q*unitPrice,payment=el("payment").value,received=payment==="Tunai"?Number(el("cashReceived").value):null;
 if(payment==="Tunai"&&(!Number.isSafeInteger(received)||received<total))return alert("Uang diterima kurang dari total.");
-const t={id:"DEMO-"+Date.now(),at:new Date().toISOString(),type:p[0],category:p[1],day:el("day").value,qty:q,unitPrice,payment,buyer:el("buyer").value.slice(0,80),school:isSchool?school:null,memberCode:isMember?memberCode:null,bundle:p[1]==="Bundling"?extra.bundles[p[0]]:null,total,received};
+const t={merchantId:window.EasyTicketTenant.activeId(),locationId:window.EasyTicketTenant.data.locations[window.EasyTicketTenant.activeId()],id:"DEMO-"+Date.now(),at:new Date().toISOString(),type:p[0],category:p[1],day:el("day").value,qty:q,unitPrice,payment,buyer:el("buyer").value.slice(0,80),school:isSchool?school:null,memberCode:isMember?memberCode:null,bundle:p[1]==="Bundling"?extra.bundles[p[0]]:null,total,received};
 store.tx.unshift(t);save();el("receipt").classList.remove("hidden");makeReceipt(t);el("print").style.display="block";render();refresh();
 });
 refresh();selection();
