@@ -29,6 +29,7 @@ document.addEventListener("change",e=>{if(e.target.classList.contains("schoolTie
 el("type").addEventListener("change",()=>setTimeout(selection,0));el("category").addEventListener("change",selection);
 const originalCheckout=el("checkout");const newCheckout=originalCheckout.cloneNode(true);originalCheckout.replaceWith(newCheckout);
 newCheckout.addEventListener("click",()=>{
+const shift=window.EasyTicketOperations?.active();if(!shift){alert("Buka shift petugas di menu Petugas & Shift sebelum transaksi.");return;}
 const p=current();if(!p)return;
 const isSchool=p[0]==="Grup"&&p[1].startsWith("Sekolah"),isMember=p[0]==="Grup"&&p[1]==="Member Warga";
 const school=el("schoolSelect").value,memberCode=el("memberCode").value.trim().toUpperCase();
@@ -37,7 +38,7 @@ if(isMember&&!extra.members.some(x=>x.code===memberCode&&x.active))return alert(
 const q=Number(el("qty").value);if(!Number.isInteger(q)||q<p[4]||q>1000)return alert("Jumlah tiket tidak memenuhi ketentuan.");
 const unitPrice=p[el("day").value==="weekday"?2:3],total=q*unitPrice,payment=el("payment").value,received=payment==="Tunai"?Number(el("cashReceived").value):null;
 if(payment==="Tunai"&&(!Number.isSafeInteger(received)||received<total))return alert("Uang diterima kurang dari total.");
-const t={merchantId:window.EasyTicketTenant.activeId(),locationId:window.EasyTicketTenant.data.locations[window.EasyTicketTenant.activeId()],id:"DEMO-"+Date.now(),at:new Date().toISOString(),type:p[0],category:p[1],day:el("day").value,qty:q,unitPrice,payment,buyer:el("buyer").value.slice(0,80),school:isSchool?school:null,memberCode:isMember?memberCode:null,bundle:p[1]==="Bundling"?extra.bundles[p[0]]:null,total,received};
+const t={shiftId:shift.id,cashierId:shift.staffId,terminalId:shift.terminalId,merchantId:window.EasyTicketTenant.activeId(),locationId:window.EasyTicketTenant.data.locations[window.EasyTicketTenant.activeId()],id:"DEMO-"+Date.now(),at:new Date().toISOString(),type:p[0],category:p[1],day:el("day").value,qty:q,unitPrice,payment,buyer:el("buyer").value.slice(0,80),school:isSchool?school:null,memberCode:isMember?memberCode:null,bundle:p[1]==="Bundling"?extra.bundles[p[0]]:null,total,received};
 store.tx.unshift(t);save();el("receipt").classList.remove("hidden");makeReceipt(t);el("print").style.display="block";render();refresh();
 });
 refresh();selection();
